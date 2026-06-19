@@ -3,44 +3,46 @@ import React, { useState, useRef, useEffect } from 'react';
 // Datos iniciales de los grupos (Sorteo real del Mundial 2026)
 const initialGroupsData = {
   A: ['México', 'Sudáfrica', 'Corea del Sur', 'Chequia'],
-  B: ['Canadá', 'Suiza', 'Bosnia y Herzegovina', 'Qatar'],
-  C: ['Brasil', 'Marruecos', 'Escocia', 'Haití'],
-  D: ['Estados Unidos', 'Australia', 'Turquía', 'Paraguay'],
-  E: ['Alemania', 'Costa de Marfil', 'Ecuador', 'Curazao'],
-  F: ['Suecia', 'Japón', 'Países Bajos', 'Túnez'],
-  G: ['Nueva Zelanda', 'Irán', 'Bélgica', 'Egipto'],
-  H: ['Uruguay', 'España', 'Arabia Saudita', 'Cabo Verde'],
-  I: ['Noruega', 'Francia', 'Senegal', 'Irak'],
-  J: ['Argentina', 'Austria', 'Jordania', 'Argelia'],
-  K: ['Colombia', 'RD Congo', 'Portugal', 'Uzbekistán'],
-  L: ['Inglaterra', 'Ghana', 'Panamá', 'Croacia'],
+  B: ['Canadá', 'Bosnia y Herzegovina', 'Qatar', 'Suiza'],
+  C: ['Brasil', 'Marruecos', 'Haití', 'Escocia'],
+  D: ['Estados Unidos', 'Paraguay', 'Australia', 'Turquía'],
+  E: ['Alemania', 'Curazao', 'Costa de Marfil', 'Ecuador'],
+  F: ['Países Bajos', 'Japón', 'Suecia', 'Túnez'],
+  G: ['Bélgica', 'Egipto', 'Irán', 'Nueva Zelanda'],
+  H: ['España', 'Cabo Verde', 'Arabia Saudita', 'Uruguay'],
+  I: ['Francia', 'Senegal', 'Irak', 'Noruega'],
+  J: ['Argentina', 'Argelia', 'Austria', 'Jordania'],
+  K: ['Portugal', 'RD Congo', 'Uzbekistán', 'Colombia'],
+  L: ['Inglaterra', 'Croacia', 'Ghana', 'Panamá'],
 };
 
-// Partidos conocidos jugados hasta la fecha actual
+// Partidos conocidos jugados hasta la fecha actual (19 de junio de 2026)
 const knownResults = {
-  'A1': [1, 0], 'A2': [1, 1],
-  'B1': [6, 0], 'B2': [4, 1],
-  'C1': [1, 1], 'C2': [1, 0],
-  'D1': [4, 1], 'D2': [2, 0],
-  'E1': [7, 1], 'E2': [1, 0],
-  'F1': [5, 1], 'F2': [2, 2],
-  'G1': [1, 1], 'G2': [2, 2],
-  'H1': [0, 0], 'H2': [1, 1],
-  'I1': [3, 1], 'I2': [4, 1],
-  'J1': [3, 0], 'J2': [3, 1],
-  'K1': [1, 1], 'K2': [3, 1],
-  'L1': [4, 2], 'L2': [1, 0],
+  'A1': [2, 0], 'A2': [2, 1], 'A3': [1, 0], 'A4': [1, 1], // Mex 2-0 RSA, Kor 2-1 Cze, Mex 1-0 Kor, Cze 1-1 RSA
+  'B1': [1, 1], 'B2': [1, 1], 'B3': [6, 0], 'B4': [4, 1], // Can 1-1 Bos, Qat 1-1 Sui, Can 6-0 Qat, Sui 4-1 Bos
+  'C1': [1, 1], 'C2': [0, 1],                             // Bra 1-1 Mar, Hai 0-1 Sco
+  'D1': [4, 1], 'D2': [2, 0], 'D3': [2, 0],               // Usa 4-1 Par, Aus 2-0 Tur, Usa 2-0 Aus
+  'E1': [7, 1], 'E2': [1, 0],                             // Ger 7-1 Cur, Civ 1-0 Ecu
+  'F1': [2, 2], 'F2': [5, 1],                             // Ned 2-2 Jpn, Swe 5-1 Tun
+  'G1': [1, 1], 'G2': [2, 2],                             // Bel 1-1 Egy, Irn 2-2 Nzl
+  'H1': [0, 0], 'H2': [1, 1],                             // Esp 0-0 Cpv, Ksa 1-1 Uru
+  'I1': [3, 1], 'I2': [1, 4],                             // Fra 3-1 Sen, Irq 1-4 Nor
+  'J1': [3, 0], 'J2': [3, 1],                             // Arg 3-0 Alg, Aut 3-1 Jor
+  'K1': [1, 1], 'K2': [1, 3],                             // Por 1-1 Cod, Uzb 1-3 Col
+  'L1': [4, 2], 'L2': [1, 0],                             // Eng 4-2 Cro, Gha 1-0 Pan
 };
 
 function initGroupMatches() {
   const matches = {};
   for (const [group, teams] of Object.entries(initialGroupsData)) {
+    // Formato real de enfrentamientos para un grupo de 4: 
+    // M1: T1 vs T2 | M2: T3 vs T4 | M3: T1 vs T3 | M4: T4 vs T2 | M5: T4 vs T1 | M6: T2 vs T3
     const gMatches = [
-      { id: `${group}1`, t1: teams[0], t2: teams[2] },
-      { id: `${group}2`, t1: teams[3], t2: teams[1] },
-      { id: `${group}3`, t1: teams[0], t2: teams[1] },
-      { id: `${group}4`, t1: teams[2], t2: teams[3] },
-      { id: `${group}5`, t1: teams[0], t2: teams[3] },
+      { id: `${group}1`, t1: teams[0], t2: teams[1] },
+      { id: `${group}2`, t1: teams[2], t2: teams[3] },
+      { id: `${group}3`, t1: teams[0], t2: teams[2] },
+      { id: `${group}4`, t1: teams[3], t2: teams[1] },
+      { id: `${group}5`, t1: teams[3], t2: teams[0] },
       { id: `${group}6`, t1: teams[1], t2: teams[2] },
     ];
     gMatches.forEach(m => {
@@ -65,12 +67,12 @@ const bracketLinks = {
   31: [29, 30]
 };
 
-// Equipos base pre-clasificados en los Dieciseisavos (según la tabla del día de hoy) para no tener que armarlo desde cero
+// Equipos base pre-clasificados en los Dieciseisavos (como placeholders iniciales)
 const defaultR32 = [
-  ['México', 'Haití'], ['Canadá', 'Japón'], ['Escocia', 'Túnez'], ['Estados Unidos', 'Bélgica'],
+  ['México', 'Marruecos'], ['Suiza', 'Japón'], ['Escocia', 'Túnez'], ['Estados Unidos', 'Bélgica'],
   ['Alemania', 'Irán'], ['Suecia', 'Brasil'], ['Nueva Zelanda', 'Corea del Sur'], ['Uruguay', 'Austria'],
   ['Noruega', 'Paraguay'], ['Argentina', 'Portugal'], ['Colombia', 'Ghana'], ['Inglaterra', 'Costa de Marfil'],
-  ['Chequia', 'Sudáfrica'], ['Suiza', 'Australia'], ['España', 'Francia'], ['RD Congo', 'Croacia']
+  ['Chequia', 'Sudáfrica'], ['Canadá', 'Australia'], ['España', 'Francia'], ['RD Congo', 'Croacia']
 ];
 
 function initBracket() {
@@ -365,18 +367,18 @@ export default function App() {
         {/* Encabezado y Pestañas */}
         <header className="pt-4 pb-2 bg-black/60 shadow-lg border-b border-gray-800 backdrop-blur-sm flex-shrink-0 relative">
           
-          {/* Botón de Restaurar */}
-          <div className="absolute top-2 right-4 md:top-4 md:right-6">
+          {/* Botón de Restaurar - Solucionado z-index */}
+          <div className="absolute top-2 right-4 md:top-4 md:right-6 z-50">
              <button 
                onClick={handleReset}
-               className="bg-red-700/80 hover:bg-red-600 text-white text-[10px] md:text-xs font-bold py-1 md:py-1.5 px-2 md:px-3 rounded shadow-lg transition-colors border border-red-500 flex items-center gap-1"
+               className="bg-red-700 hover:bg-red-600 text-white text-[10px] md:text-xs font-bold py-1.5 md:py-2 px-3 md:px-4 rounded-lg shadow-lg transition-colors border border-red-500 flex items-center gap-2 cursor-pointer pointer-events-auto"
                title="Eliminar datos locales y volver a la versión oficial"
              >
                <span>🗑️</span> <span className="hidden md:inline">Restaurar Datos</span>
              </button>
           </div>
 
-          <h1 className="text-2xl md:text-3xl font-black text-center text-yellow-400 drop-shadow-md mb-4 uppercase tracking-wide">
+          <h1 className="text-2xl md:text-3xl font-black text-center text-yellow-400 drop-shadow-md mb-4 uppercase tracking-wide px-24">
              🏆 Tablero Mundial 2026
           </h1>
           <div className="flex overflow-x-auto gap-2 px-4 hide-scrollbar justify-start md:justify-center">
@@ -418,7 +420,8 @@ export default function App() {
                     <div className="flex-1 bg-black/70 p-5 rounded-2xl shadow-2xl border border-gray-700 backdrop-blur-md">
                       <h3 className="text-2xl font-black mb-4 text-yellow-400">Posiciones Grupo {activeTab}</h3>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-center">
+                        {/* Solucionado: Se agregó text-gray-100 para evitar que la tabla quede oscura */}
+                        <table className="w-full text-sm text-center text-gray-100">
                           <thead>
                             <tr className="text-gray-400 border-b border-gray-600 uppercase text-xs">
                               <th className="text-left py-3">Equipo</th>
@@ -449,7 +452,7 @@ export default function App() {
                        <div className="flex flex-col gap-3">
                           {Object.values(matches).filter(m => m.id.startsWith(activeTab)).map(m => (
                             <div key={m.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${m.played ? 'bg-blue-900/20 border-blue-800/50' : 'bg-gray-800/60 border-gray-700'}`}>
-                               <div className="flex-1 text-right font-bold text-lg truncate pr-2">{m.t1}</div>
+                               <div className="flex-1 text-right font-bold text-lg truncate pr-2 text-white">{m.t1}</div>
                                <div className="flex items-center gap-2 mx-2 bg-black/50 p-1.5 rounded-lg border border-gray-700">
                                   <input 
                                     type="number" min="0" 
@@ -465,7 +468,7 @@ export default function App() {
                                     className="w-10 h-10 text-center bg-gray-900 border border-gray-600 rounded-md text-yellow-400 outline-none focus:border-yellow-500 font-bold text-lg" 
                                   />
                                </div>
-                               <div className="flex-1 text-left font-bold text-lg truncate pl-2">{m.t2}</div>
+                               <div className="flex-1 text-left font-bold text-lg truncate pl-2 text-white">{m.t2}</div>
                             </div>
                           ))}
                        </div>
