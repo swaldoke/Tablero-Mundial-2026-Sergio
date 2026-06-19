@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 // Datos iniciales de los grupos (Sorteo real del Mundial 2026)
 const initialGroupsData = {
@@ -197,8 +197,36 @@ const BracketNode = ({ matchId, bracketState, handleWin, handleSelect, allTeams 
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('Bracket');
-  const [matches, setMatches] = useState(initGroupMatches());
-  const [bracket, setBracket] = useState(initBracket());
+
+  // Cargar desde localStorage o usar los datos oficiales si no hay nada guardado
+  const [matches, setMatches] = useState(() => {
+    const saved = localStorage.getItem('mundialMatches');
+    return saved ? JSON.parse(saved) : initGroupMatches();
+  });
+
+  const [bracket, setBracket] = useState(() => {
+    const saved = localStorage.getItem('mundialBracket');
+    return saved ? JSON.parse(saved) : initBracket();
+  });
+
+  // Guardar en localStorage automáticamente cuando cambian los partidos o el bracket
+  useEffect(() => {
+    localStorage.setItem('mundialMatches', JSON.stringify(matches));
+  }, [matches]);
+
+  useEffect(() => {
+    localStorage.setItem('mundialBracket', JSON.stringify(bracket));
+  }, [bracket]);
+
+  // Función para resetear los datos locales
+  const handleReset = () => {
+    if (window.confirm("¿Estás seguro de que quieres borrar tus cambios locales y volver a los resultados oficiales?")) {
+      localStorage.removeItem('mundialMatches');
+      localStorage.removeItem('mundialBracket');
+      setMatches(initGroupMatches());
+      setBracket(initBracket());
+    }
+  };
 
   const containerRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -335,7 +363,19 @@ export default function App() {
 
       <div className="z-10 flex flex-col h-screen">
         {/* Encabezado y Pestañas */}
-        <header className="pt-4 pb-2 bg-black/60 shadow-lg border-b border-gray-800 backdrop-blur-sm flex-shrink-0">
+        <header className="pt-4 pb-2 bg-black/60 shadow-lg border-b border-gray-800 backdrop-blur-sm flex-shrink-0 relative">
+          
+          {/* Botón de Restaurar */}
+          <div className="absolute top-2 right-4 md:top-4 md:right-6">
+             <button 
+               onClick={handleReset}
+               className="bg-red-700/80 hover:bg-red-600 text-white text-[10px] md:text-xs font-bold py-1 md:py-1.5 px-2 md:px-3 rounded shadow-lg transition-colors border border-red-500 flex items-center gap-1"
+               title="Eliminar datos locales y volver a la versión oficial"
+             >
+               <span>🗑️</span> <span className="hidden md:inline">Restaurar Datos</span>
+             </button>
+          </div>
+
           <h1 className="text-2xl md:text-3xl font-black text-center text-yellow-400 drop-shadow-md mb-4 uppercase tracking-wide">
              🏆 Tablero Mundial 2026
           </h1>
