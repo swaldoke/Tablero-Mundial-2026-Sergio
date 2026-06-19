@@ -378,26 +378,31 @@ export default function App() {
              </button>
           </div>
 
-          <h1 className="text-2xl md:text-3xl font-black text-center text-yellow-400 drop-shadow-md mb-4 uppercase tracking-wide px-24">
+          {/* Se ajustó el padding (px-4) y margin-top (mt-6) en móviles para evitar superposiciones */}
+          <h1 className="text-2xl md:text-3xl font-black text-center text-yellow-400 drop-shadow-md mb-4 uppercase tracking-wide px-4 md:px-24 mt-8 md:mt-0">
              🏆 Tablero Mundial 2026
           </h1>
-          <div className="flex overflow-x-auto gap-2 px-4 hide-scrollbar justify-start md:justify-center">
-            <button 
-              onClick={() => setActiveTab('Bracket')} 
-              className={`whitespace-nowrap px-5 py-2 rounded-lg font-bold transition-all ${activeTab === 'Bracket' ? 'bg-yellow-500 text-black shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
-            >
-              🌳 Fase Eliminatoria
-            </button>
-            <div className="w-px h-8 bg-gray-600 self-center mx-2"></div>
-            {Object.keys(initialGroupsData).map(g => (
-               <button 
-                 key={g} 
-                 onClick={() => setActiveTab(g)} 
-                 className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all ${activeTab === g ? 'bg-green-600 text-white shadow-[0_0_10px_rgba(34,197,94,0.4)]' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
-               >
-                 Grupo {g}
-               </button>
-            ))}
+          
+          {/* Contenedor de Pestañas Corregido para Móviles */}
+          <div className="w-full overflow-x-auto hide-scrollbar pb-1">
+            <div className="flex gap-2 px-4 w-max md:mx-auto">
+              <button 
+                onClick={() => setActiveTab('Bracket')} 
+                className={`flex-shrink-0 whitespace-nowrap px-5 py-2 rounded-lg font-bold transition-all ${activeTab === 'Bracket' ? 'bg-yellow-500 text-black shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+              >
+                🌳 Fase Eliminatoria
+              </button>
+              <div className="w-px h-8 bg-gray-600 self-center mx-1 flex-shrink-0"></div>
+              {Object.keys(initialGroupsData).map(g => (
+                 <button 
+                   key={g} 
+                   onClick={() => setActiveTab(g)} 
+                   className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-lg font-bold transition-all ${activeTab === g ? 'bg-green-600 text-white shadow-[0_0_10px_rgba(34,197,94,0.4)]' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+                 >
+                   Grupo {g}
+                 </button>
+              ))}
+            </div>
           </div>
         </header>
 
